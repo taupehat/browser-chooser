@@ -1,0 +1,29 @@
+#!/usr/bin/perl
+#
+# chooser: allows control over which browser opens which links
+#
+
+use strict;
+use warnings;
+use List::MoreUtils qw(true);
+use URI::Encode qw (uri_encode uri_decode);
+use Carp;
+my $home = $ENV{HOME};
+
+# Change the following to match your system
+my $special_open = "$home/.config/special_domains";
+my $special_browser = '/usr/bin/firefox';
+my $default_browser = '/usr/bin/google-chrome';
+
+croak("Only one URL allowed") unless $#ARGV == 0;
+my $url = $ARGV[0];
+
+open my $fh, '<', $special_open or croak("$special_open missing or unreadable");
+chomp (my @domains = <$fh>);
+close $fh;
+if (grep { $url =~ /$_/ } @domains) {
+    system "$special_browser", "$url";
+} else {
+    system "$default_browser", "$url";
+}
+exit 0;
